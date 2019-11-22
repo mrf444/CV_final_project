@@ -1,2 +1,2 @@
 # CV_final_project
-Repo for CDS Computer Vision Final Project
+DS-GA 3001: Computer Vision Final Project
