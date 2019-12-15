@@ -591,16 +591,15 @@ def get_straight_blocks(img, interest_pt, s, orientation):
     return output
         
 
-def get_descriptor(original_img_dx, original_img_dy, interest_pt, s, orientation):
+def get_descriptor(img, interest_pt, s, orientation):
+    img_dx = convolve_with_scipy(lady, haar_wavelet_filter(math.floor(2*s), direction='x'))
+    img_dy = convolve_with_scipy(lady, haar_wavelet_filter(math.floor(2*s), direction='y'))
     #applies the gaussian mask centered at interest_pt
     i,j = interest_pt
     bsd = math.ceil(10*s*np.sqrt(2))
     mask = gkern(2*bsd,3.3)
-    big_square_dx = mask*original_img_dx[i-bsd:i+bsd, j-bsd:j+bsd]
-    big_square_dy = mask*original_img_dy[i-bsd:i+bsd, j-bsd:j+bsd]
-    
-    img_dx = original_img_dx.copy()
-    img_dy = original_img_dy.copy()
+    big_square_dx = mask*img_dx[i-bsd:i+bsd, j-bsd:j+bsd]
+    big_square_dy = mask*img_dy[i-bsd:i+bsd, j-bsd:j+bsd]
                 
     img_dx[i-bsd:i+bsd, j-bsd:j+bsd] = big_square_dx
     img_dy[i-bsd:i+bsd, j-bsd:j+bsd] = big_square_dy    
@@ -638,14 +637,15 @@ def get_descriptor(original_img_dx, original_img_dy, interest_pt, s, orientation
         
     return np.array(descriptor)
 
-def get_descriptor_for_all_points(img_dx, img_dy, first_octave_interest_points, second_octave_interest_points, first_octave_orientations, second_octave_orientations):
+def get_descriptor_for_all_points(img, first_octave_interest_points, second_octave_interest_points, first_octave_orientations, second_octave_orientations):
+    
     descriptors = {}
     count = 0
     print('Getting descriptors for first octave...')
     start_time = time.time()
     for interest_pt in first_octave_interest_points.keys():
         try:
-            descriptor = get_descriptor(img_dx, img_dy, interest_pt, first_octave_interest_points[interest_pt], first_octave_orientations[interest_pt])
+            descriptor = get_descriptor(img, interest_pt, first_octave_interest_points[interest_pt], first_octave_orientations[interest_pt])
             descriptors[interest_pt] = descriptor
             count += 1
             if count %10 == 0:
@@ -661,7 +661,7 @@ def get_descriptor_for_all_points(img_dx, img_dy, first_octave_interest_points, 
     start_time = time.time()
     for interest_pt in second_octave_interest_points.keys():
         try:
-            descriptor = get_descriptor(img_dx, img_dy, interest_pt, second_octave_interest_points[interest_pt], second_octave_orientations[interest_pt])
+            descriptor = get_descriptor(img, interest_pt, second_octave_interest_points[interest_pt], second_octave_orientations[interest_pt])
             descriptors[interest_pt] = descriptor
             print(count)
             if count %10 == 0:
@@ -720,7 +720,15 @@ def SURF(img):
     print('')
 
     print('found', len(first_octave_interest_points.keys()), 'interest points in first octave and ', len(second_octave_interest_points.keys()), 'interest points in second octave')
-    
+    copy = img
+    for pt in first_octave_interest_points.keys():
+        copy = illustrate_point(copy, pt, first_octave_interest_points[pt])
+    for pt in second_octave_interest_points.keys():
+        copy = illustrate_point(copy, pt, second_octave_interest_points[pt])
+
+    plt.figure(figsize=((9,9)))
+    plt.imshow(copy)
+    plt.show()
     print('')
     print('finding orientations for first octave...')
     start_time = time.time()
@@ -754,9 +762,7 @@ def SURF(img):
     print('Orientations for second octave took', time.time() - start_time, 'seconds')
     
     print('')
-    img_dx = convolve_with_scipy(img, haar_wavelet_filter(4, direction='x'))
-    img_dy = convolve_with_scipy(img, haar_wavelet_filter(4, direction='y'))
     
-    descriptors = get_descriptor_for_all_points(img_dx, img_dy, first_octave_interest_points, second_octave_interest_points, first_octave_orientations, second_octave_orientations)
+    descriptors = get_descriptor_for_all_points(img, first_octave_interest_points, second_octave_interest_points, first_octave_orientations, second_octave_orientations)
     
     return descriptors
