@@ -334,8 +334,8 @@ def orientation(img, interest_pt, scale):
     circle = square*mask
     
     #create 4x4 haar wavelet filter in each direction
-    hw_x = haar_wavelet_filter(4,'x') #4x4 just because
-    hw_y = haar_wavelet_filter(4,'y')
+    hw_x = haar_wavelet_filter(math.floor(4*scale),'x') #4x4 just because
+    hw_y = haar_wavelet_filter(math.floor(4*scale),'y')
     
     #apply haar wavelet filter to square in each direction
     dx = scipy.signal.convolve2d(circle, hw_x, 'same')
