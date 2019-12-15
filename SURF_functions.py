@@ -1,3 +1,20 @@
+import numpy as np 
+import matplotlib.pyplot as plt 
+import time
+import scipy
+from PIL import Image
+import math
+import scipy.misc
+from scipy.ndimage.interpolation import zoom
+from scipy.stats import norm
+from scipy.stats import multivariate_normal
+import pywt
+from scipy import signal
+from scipy.ndimage import gaussian_filter
+import scipy.stats as st
+import scipy.ndimage as ndimage #image processing library
+import itertools
+
 def rgb2gray(rgb):
     r, g, b = rgb[:,:,0], rgb[:,:,1], rgb[:,:,2]
     gray = 0.2989 * r + 0.5870 * g + 0.1140 * b
