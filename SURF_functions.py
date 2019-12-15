@@ -206,6 +206,22 @@ def illustrate_point(img, pt, radius):
                 
     return output
 
+#function that draws a white circle of specified radius around the specified points
+def illustrate_point(img, pt, radius):
+    r = math.ceil(radius)
+    output = np.zeros(img.shape)
+    for i in range(img.shape[0]):
+        for j in range(img.shape[1]):
+            output[i][j] = img[i][j]
+    x,y = pt
+    window = img[x-r-1:x+r+1, y-r-1:y+r+1]
+    m,n = window.shape
+    for i in np.linspace(x-r-1, x+r+1, x+r+1 - (x-r-1) + 1):
+        for j in np.linspace(y-r-1, y+r+1, y+r+1 - (y-r-1) + 1):
+            length = np.sqrt((i-x)**2 + (j - y)**2)
+            if radius-1 < length < radius+1:
+                output[int(i)][int(j)] = 255
+
 def gkern(kernlen=5, nsig=3):
     """Returns a 2D Gaussian kernel."""
 
